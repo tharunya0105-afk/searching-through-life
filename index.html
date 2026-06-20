@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Eternal Circle</title>
+    <title>Searching Through Life</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,11 +16,10 @@
             height: 100%;
             overflow: hidden;
             background-color: #000;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
+            font-family: 'Times New Roman', Times, serif;
         }
 
-        /* Screen States - Optimized for Mobile GPU */
+        /* Screen States */
         .screen {
             position: absolute;
             top: 0;
@@ -32,371 +31,276 @@
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 1.2s ease-in-out, transform 2.2s cubic-bezier(0.25, 1, 0.5, 1);
-            /* Forces Hardware Acceleration on Mobile */
-            will-change: transform, opacity;
-            transform: translateZ(0);
-            backface-visibility: hidden;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
         }
 
         .screen.active {
             opacity: 1;
             pointer-events: auto;
+            z-index: 2;
         }
 
-        /* --- SCREEN 1: START/END SCREEN --- */
-        #start-screen {
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
-            z-index: 10;
-            flex-direction: column;
-            gap: 20px;
+        /* Screen 1: Welcome Poster (Fully Visible) */
+        #welcome-screen {
+            background-color: #000;
+            cursor: pointer;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        #bg-image {
-            position: absolute;
+        .poster-img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            z-index: -1;
-            transition: transform 2.5s ease-in-out;
-            will-change: transform;
-            transform: translate3d(0,0,0);
+            object-fit: contain; 
+            object-position: center; 
         }
 
-        .website-title {
-            font-family: 'Georgia', serif;
-            font-size: 2.5rem; /* Scaled down for mobile screens */
-            font-weight: 300;
-            font-style: italic;
-            letter-spacing: 2px;
-            color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 4px 10px rgba(0, 0, 0, 0.9);
+        .click-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            text-shadow: 0px 0px 10px rgba(0,0,0,0.9);
+            animation: pulse 2.5s infinite;
+            font-weight: bold;
+        }
+
+        /* Screen 2: Earth Zooming */
+        #earth-screen {
+            background-color: #000;
+        }
+
+        .earth-img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            transform: scale(1);
+            transition: transform 4s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        .earth-img.zoom-in {
+            transform: scale(8);
+        }
+
+        .earth-img.zoom-out {
+            transform: scale(1);
+            transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Screen 3: Video Player */
+        #video-screen {
+            background-color: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Screen 4: Homepage Entry (Final Stage) */
+        #home-screen {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('Gemini_Generated_Image_t27tqdt27tqdt27t.png') no-repeat center center;
+            background-size: cover;
+            flex-direction: column;
+            color: #fff;
             text-align: center;
-            padding: 0 15px;
-            animation: fadeInElement 1.5s ease-in-out;
-            user-select: none;
+            position: relative;
+        }
+
+        .home-title {
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .home-subtitle {
+            font-size: 1.3rem;
+            color: #d1d5db;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
         }
 
         .enter-btn {
-            padding: 12px 35px;
-            font-size: 1.1rem;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            background: transparent;
             color: #fff;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 30px;
+            border: 2px solid #fff;
             cursor: pointer;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px); /* Safari Mobile Support */
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            z-index: 11;
-            animation: fadeInElement 1.8s ease-in-out;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
         }
 
-        .enter-btn:hover, .enter-btn:active {
+        .enter-btn:hover {
             background: #fff;
             color: #000;
             box-shadow: 0 0 25px rgba(255,255,255,0.5);
+            transform: translateY(-2px);
         }
 
-        .project-credits {
+        /* Cinematic Credits Styling positioned ONLY at the end screen */
+        .credits-overlay {
             position: absolute;
             bottom: 25px;
-            text-align: center;
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 0.75rem; /* Optimized for mobile viewing */
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.5;
-            letter-spacing: 1px;
+            right: 35px;
+            color: rgba(255, 255, 255, 0.55);
+            font-family: Arial, sans-serif;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            text-align: right;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            z-index: 11;
-            padding: 0 10px;
-            width: 100%;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-            animation: fadeInElement 2s ease-in-out;
-        }
-
-        .project-credits span {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .tools-list {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 5px;
-            text-transform: none;
-        }
-
-        @keyframes fadeInElement {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- SCREEN 2: VIDEO SCREEN --- */
-        #story-screen {
-            background: #000;
-            z-index: 5;
-        }
-
-        #life-video {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
-
-        .subtitle-container {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            width: 85%;
-            text-align: center;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
             pointer-events: none;
         }
 
-        .subtitle-text {
-            font-family: 'Georgia', serif;
-            font-size: 1.4rem; /* Scaled down so long sentences fit on mobile screens */
-            font-style: italic;
-            font-weight: 400;
-            color: #ffffff;
-            text-shadow: 0px 2px 8px rgba(0, 0, 0, 1), 0px 1px 4px rgba(0, 0, 0, 0.8);
-            line-height: 1.4;
-            opacity: 0;
-            transition: opacity 0.4s ease-in-out;
-        }
-
-        .subtitle-text.visible {
-            opacity: 1;
-        }
-
-        /* --- SCREEN 3: GOOGLE SCREEN --- */
-        #google-screen {
-            background: #ffffff;
-            color: #000;
-            flex-direction: column;
-            z-index: 8;
-        }
-
-        .google-container {
-            width: 100%;
-            max-width: 90%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .google-logo {
-            font-size: 3.5rem;
+        .credits-overlay span {
+            color: rgba(255, 255, 255, 0.85);
             font-weight: bold;
-            font-family: 'Product Sans', Arial, sans-serif;
-            margin-bottom: 20px;
-            user-select: none;
-        }
-        .g-g1 { color: #4285F4; }
-        .g-o1 { color: #EA4335; }
-        .g-o2 { color: #FBBC05; }
-        .g-g2 { color: #4285F4; }
-        .g-l  { color: #34A853; }
-        .g-e  { color: #EA4335; }
-
-        .search-box-wrapper {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 6px rgba(32,33,36,.28);
-            border-radius: 24px;
-            padding: 8px 15px;
-            background: #fff;
-            margin-bottom: 15px;
         }
 
-        .search-input {
-            width: 100%;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            color: #000;
-            background: transparent;
+        /* Responsive design for mobiles */
+        @media (max-width: 768px) {
+            .credits-overlay {
+                right: 0;
+                left: 0;
+                text-align: center;
+                bottom: 15px;
+                font-size: 0.65rem;
+            }
+            .home-title {
+                font-size: 2.2rem;
+            }
         }
 
-        .search-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .google-btn {
-            background-color: #f8f9fa;
-            border: 1px solid #f8f9fa;
-            border-radius: 4px;
-            color: #3c4043;
-            font-size: 13px;
-            padding: 0 12px;
-            height: 32px;
-            cursor: pointer;
-        }
-
-        /* --- MOBILE SMOOTH ZOOM TRANSITIONS --- */
-        .zoom-out-transition {
-            transform: scale(0.05) translateZ(0);
-            opacity: 0 !important;
-        }
-
-        .zoom-in-target {
-            transform: scale(2.5) translateZ(0);
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
         }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1 -->
-    <div id="start-screen" class="screen active">
-        <img id="bg-image" src="Gemini_Generated_Image_t27tqdt27tqdt27t.png" alt="Earth from Space">
-        <h1 class="website-title">The Eternal Circle</h1>
-        <button class="enter-btn" onclick="startJourney()">Enter</button>
+    <!-- Audio Track -->
+    <audio id="bg-music" src="The_Architecture_of_Awe.mp3" loop></audio>
+
+    <!-- STEP 1: Welcome Screen (New Poster Graphic) -->
+    <div id="welcome-screen" class="screen active" onclick="startExperience()">
+        <img class="poster-img" src="Gemini_Generated_Image_41nr3t41nr3t41nr.png" alt="Searching Through Life Poster">
+        <div class="click-hint">CLICK ANYWHERE TO ENTER</div>
+    </div>
+
+    <!-- STEP 2: Earth Interactive Transition Screen -->
+    <div id="earth-screen" class="screen">
+        <img id="earth-image" class="earth-img" src="Gemini_Generated_Image_t27tqdt27tqdt27t.png" alt="Earth View">
+    </div>
+
+    <!-- STEP 3: Video Screen (Modify video source below on line 147) -->
+    <div id="video-screen" class="screen">
+        <video id="main-video" src="track.mp4" playsinline></video>
+    </div>
+
+    <!-- STEP 4: Ultimate Homepage Screen (Credits reveal here at the very end) -->
+    <div id="home-screen" class="screen">
+        <h1 class="home-title">SEARCHING THROUGH LIFE</h1>
+        <p class="home-subtitle">Technology Evolves. Curiosity Remains.</p>
+        <button class="enter-btn" onclick="alert('Welcome to the experience!')">Enter</button>
         
-        <div class="project-credits">
+        <!-- End Screen Credits Branding -->
+        <div class="credits-overlay">
             Created by <span>Tharunya.S</span><br>
-            Saranathan College of Engineering<br>
-            <div class="tools-list">
-                Powered by <strong>Gemini</strong> | Tools: Gemini, Google Flow, Nano Banana, Lyria 3
-            </div>
-        </div>
-    </div>
-
-    <!-- SCREEN 2: Mobile Inline Video Player Fixes -->
-    <div id="story-screen" class="screen">
-        <video id="life-video" preload="auto" playsinline webkit-playsinline>.
-            <source src="Woman's_life_cycle_stages_202606192045_2.mp4" type="video/mp4">
-        </video>
-        <div class="subtitle-container">
-            <div id="subtitle" class="subtitle-text"></div>
-        </div>
-    </div>
-
-    <!-- SCREEN 3 -->
-    <div id="google-screen" class="screen">
-        <div class="google-container">
-            <div class="google-logo">
-                <span class="g-g1">G</span><span class="g-o1">o</span><span class="g-o2">o</span><span class="g-g2">g</span><span class="g-l">l</span><span class="g-e">e</span>
-            </div>
-            <div class="search-box-wrapper">
-                <input type="text" class="search-input" id="google-search-input" readonly>
-            </div>
-            <div class="search-buttons">
-                <button class="google-btn" id="search-btn">Google Search</button>
-                <button class="google-btn">I'm Feeling Lucky</button>
-            </div>
+            Powered by <span>Gemini NanoBanana, Lyria 3, Google Flow</span>
         </div>
     </div>
 
     <script>
-        const startScreen = document.getElementById('start-screen');
-        const storyScreen = document.getElementById('story-screen');
-        const googleScreen = document.getElementById('google-screen');
-        const bgImage = document.getElementById('bg-image');
-        const lifeVideo = document.getElementById('life-video');
-        const subtitle = document.getElementById('subtitle');
-        const searchInput = document.getElementById('google-search-input');
-        const searchBtn = document.getElementById('search-btn');
+        // DOM Elements
+        const bgMusic = document.getElementById('bg-music');
+        const mainVideo = document.getElementById('main-video');
+        
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const earthScreen = document.getElementById('earth-screen');
+        const videoScreen = document.getElementById('video-screen');
+        const homeScreen = document.getElementById('home-screen');
+        const earthImage = document.getElementById('earth-image');
 
-        const subtitleTimeline = [
-            { time: 0.0, text: "A fragile cry breaks the silence... a girl is born into the world." },
-            { time: 2.0, text: "Scraped knees, wide eyes, and boundless childhood dreams." },
-            { time: 5.0, text: "Navigating the storms of youth, seeking love, identity, and purpose." },
-            { time: 7.0, text: "An old woman sits quietly, wondering about the final mystery..." }
-        ];
+        // Helper function for smooth audio adjustments
+        function fadeAudio(audio, targetVolume, duration) {
+            const startVolume = audio.volume;
+            const diff = targetVolume - startVolume;
+            const steps = 20;
+            const stepTime = duration / steps;
+            let currentStep = 0;
 
-        function startJourney() {
-            bgImage.style.transform = "scale(1.4) translate3d(0,0,0)";
-            
-            setTimeout(() => {
-                startScreen.classList.remove('active');
-                storyScreen.classList.add('active');
-                
-                lifeVideo.currentTime = 0;
-                lifeVideo.muted = false;
-                lifeVideo.play().catch(err => console.log("Mobile gesture handler bypass initialized."));
-            }, 1500);
+            const interval = setInterval(() => {
+                currentStep++;
+                audio.volume = startVolume + (diff * (currentStep / steps));
+                if (currentStep >= steps) {
+                    audio.volume = targetVolume;
+                    clearInterval(interval);
+                }
+            }, stepTime);
         }
 
-        lifeVideo.addEventListener('timeupdate', () => {
-            const currentTime = lifeVideo.currentTime;
-            let activeSubtitle = "";
-            for (let i = 0; i < subtitleTimeline.length; i++) {
-                if (currentTime >= subtitleTimeline[i].time) {
-                    activeSubtitle = subtitleTimeline[i].text;
-                }
-            }
+        // Step 1 -> Step 2: Triggered by user click
+        function startExperience() {
+            bgMusic.volume = 1.0;
+            bgMusic.play().catch(error => console.log("Audio play blocked/failed:", error));
 
-            if (activeSubtitle !== "" && subtitle.innerHTML !== activeSubtitle) {
-                subtitle.classList.remove('visible');
-                setTimeout(() => {
-                    subtitle.innerHTML = activeSubtitle;
-                    subtitle.classList.add('visible');
-                }, 100);
-            }
-        });
+            welcomeScreen.classList.remove('active');
+            earthScreen.classList.add('active');
 
-        lifeVideo.addEventListener('ended', () => {
-            subtitle.classList.remove('visible');
             setTimeout(() => {
-                storyScreen.classList.remove('active');
-                googleScreen.classList.add('active');
-                
-                lifeVideo.muted = true;
-                lifeVideo.pause();
+                earthImage.classList.add('zoom-in');
+            }, 100);
 
-                setTimeout(triggerGoogleTyping, 800);
-            }, 500);
-        });
-
-        function triggerGoogleTyping() {
-            const query = "life after death";
-            let i = 0;
-            
-            function typeQuery() {
-                if (i < query.length) {
-                    searchInput.value += query.charAt(i);
-                    i++;
-                    setTimeout(typeQuery, 90);
-                } else {
-                    searchBtn.style.border = "1px solid #4285F4";
-                    searchBtn.style.background = "#f1f3f4";
-                    setTimeout(() => { searchBtn.click(); }, 1200);
-                }
-            }
-            typeQuery();
+            setTimeout(() => {
+                transitionToVideo();
+            }, 4100); 
         }
 
-        searchBtn.addEventListener('click', () => {
-            googleScreen.classList.add('zoom-out-transition');
-
-            startScreen.style.transition = "none";
-            startScreen.classList.add('zoom-in-target');
-            startScreen.classList.add('active');
+        // Step 2 -> Step 3: Transition to the video player
+        function transitionToVideo() {
+            earthScreen.classList.remove('active');
+            videoScreen.classList.add('active');
             
-            void startScreen.offsetWidth; 
-            
-            setTimeout(() => {
-                startScreen.style.transition = "opacity 2s ease-in-out, transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)";
-                startScreen.classList.remove('zoom-in-target');
-                bgImage.style.transform = "scale(1) translate3d(0,0,0)"; 
-            }, 50);
+            // Music smoothly lowers so your video audio is clear
+            fadeAudio(bgMusic, 0.1, 800); 
+            mainVideo.play();
+
+            mainVideo.onended = function() {
+                transitionOutVideo();
+            };
+        }
+
+        // Step 3 -> Step 2 (Zoom Out) -> Step 4: Video End Sequence
+        function transitionOutVideo() {
+            videoScreen.classList.remove('active');
+            earthScreen.classList.add('active');
+
+            // Bring music right back to full power
+            fadeAudio(bgMusic, 1.0, 1000);
+
+            earthImage.classList.remove('zoom-in');
+            earthImage.classList.add('zoom-out');
 
             setTimeout(() => {
-                googleScreen.classList.remove('zoom-out-transition');
-                googleScreen.classList.remove('active');
-                searchInput.value = "";
-                searchBtn.removeAttribute('style');
-            }, 3200);
-        });
+                earthScreen.classList.remove('active');
+                homeScreen.classList.add('active');
+            }, 3000);
+        }
     </script>
 </body>
 </html>
