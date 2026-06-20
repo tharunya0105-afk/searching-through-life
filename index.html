@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searching Through Life</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        /* Screen States */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 2;
+        }
+
+        /* Screen 1: Welcome Poster (Fully Visible) */
+        #welcome-screen {
+            background-color: #000;
+            cursor: pointer;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .poster-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            object-position: center; 
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            text-shadow: 0px 0px 10px rgba(0,0,0,0.9);
+            animation: pulse 2.5s infinite;
+            font-weight: bold;
+        }
+
+        /* Screen 2: Earth Zooming */
+        #earth-screen {
+            background-color: #000;
+        }
+
+        .earth-img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            transform: scale(1);
+            transition: transform 4s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        .earth-img.zoom-in {
+            transform: scale(8);
+        }
+
+        .earth-img.zoom-out {
+            transform: scale(1);
+            transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Screen 3: Video Player */
+        #video-screen {
+            background-color: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Screen 4: Homepage Entry (Final Stage) */
+        #home-screen {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('Gemini_Generated_Image_t27tqdt27tqdt27t.png') no-repeat center center;
+            background-size: cover;
+            flex-direction: column;
+            color: #fff;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-title {
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .home-subtitle {
+            font-size: 1.3rem;
+            color: #d1d5db;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+
+        .enter-btn {
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            cursor: pointer;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+
+        .enter-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 25px rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Cinematic Credits Styling positioned ONLY at the end screen */
+        .credits-overlay {
+            position: absolute;
+            bottom: 25px;
+            right: 35px;
+            color: rgba(255, 255, 255, 0.55);
+            font-family: Arial, sans-serif;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            text-align: right;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .credits-overlay span {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: bold;
+        }
+
+        /* Responsive design for mobiles */
+        @media (max-width: 768px) {
+            .credits-overlay {
+                right: 0;
+                left: 0;
+                text-align: center;
+                bottom: 15px;
+                font-size: 0.65rem;
+            }
+            .home-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio Track -->
+    <audio id="bg-music" src="The_Architecture_of_Awe.mp3" loop></audio>
+
+    <!-- STEP 1: Welcome Screen (New Poster Graphic) -->
+    <div id="welcome-screen" class="screen active" onclick="startExperience()">
+        <img class="poster-img" src="Gemini_Generated_Image_41nr3t41nr3t41nr.png" alt="Searching Through Life Poster">
+        <div class="click-hint">CLICK ANYWHERE TO ENTER</div>
+    </div>
+
+    <!-- STEP 2: Earth Interactive Transition Screen -->
+    <div id="earth-screen" class="screen">
+        <img id="earth-image" class="earth-img" src="Gemini_Generated_Image_t27tqdt27tqdt27t.png" alt="Earth View">
+    </div>
+
+    <!-- STEP 3: Video Screen (Modify video source below on line 147) -->
+    <div id="video-screen" class="screen">
+        <video id="main-video" src="track.mp4" playsinline></video>
+    </div>
+
+    <!-- STEP 4: Ultimate Homepage Screen (Credits reveal here at the very end) -->
+    <div id="home-screen" class="screen">
+        <h1 class="home-title">SEARCHING THROUGH LIFE</h1>
+        <p class="home-subtitle">Technology Evolves. Curiosity Remains.</p>
+        <button class="enter-btn" onclick="alert('Welcome to the experience!')">Enter</button>
+        
+        <!-- End Screen Credits Branding -->
+        <div class="credits-overlay">
+            Created by <span>Tharunya.S</span><br>
+            Powered by <span>Gemini NanoBanana, Lyria 3, Google Flow</span>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const bgMusic = document.getElementById('bg-music');
+        const mainVideo = document.getElementById('main-video');
+        
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const earthScreen = document.getElementById('earth-screen');
+        const videoScreen = document.getElementById('video-screen');
+        const homeScreen = document.getElementById('home-screen');
+        const earthImage = document.getElementById('earth-image');
+
+        // Helper function for smooth audio adjustments
+        function fadeAudio(audio, targetVolume, duration) {
+            const startVolume = audio.volume;
+            const diff = targetVolume - startVolume;
+            const steps = 20;
+            const stepTime = duration / steps;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                currentStep++;
+                audio.volume = startVolume + (diff * (currentStep / steps));
+                if (currentStep >= steps) {
+                    audio.volume = targetVolume;
+                    clearInterval(interval);
+                }
+            }, stepTime);
+        }
+
+        // Step 1 -> Step 2: Triggered by user click
+        function startExperience() {
+            bgMusic.volume = 1.0;
+            bgMusic.play().catch(error => console.log("Audio play blocked/failed:", error));
+
+            welcomeScreen.classList.remove('active');
+            earthScreen.classList.add('active');
+
+            setTimeout(() => {
+                earthImage.classList.add('zoom-in');
+            }, 100);
+
+            setTimeout(() => {
+                transitionToVideo();
+            }, 4100); 
+        }
+
+        // Step 2 -> Step 3: Transition to the video player
+        function transitionToVideo() {
+            earthScreen.classList.remove('active');
+            videoScreen.classList.add('active');
+            
+            // Music smoothly lowers so your video audio is clear
+            fadeAudio(bgMusic, 0.1, 800); 
+            mainVideo.play();
+
+            mainVideo.onended = function() {
+                transitionOutVideo();
+            };
+        }
+
+        // Step 3 -> Step 2 (Zoom Out) -> Step 4: Video End Sequence
+        function transitionOutVideo() {
+            videoScreen.classList.remove('active');
+            earthScreen.classList.add('active');
+
+            // Bring music right back to full power
+            fadeAudio(bgMusic, 1.0, 1000);
+
+            earthImage.classList.remove('zoom-in');
+            earthImage.classList.add('zoom-out');
+
+            setTimeout(() => {
+                earthScreen.classList.remove('active');
+                homeScreen.classList.add('active');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
